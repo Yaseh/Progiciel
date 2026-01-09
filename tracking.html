@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Suivi Commandes</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .badge { padding: 4px 8px; border-radius: 4px; color: white; }
+        .state-draft { background-color: gray; }
+        .state-sale { background-color: green; } 
+        .state-sent { background-color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Suivi de vos commandes</h1>
+    <a href="index.html">Retour à la boutique</a>
+    <br><br>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Référence</th>
+                <th>Client</th>
+                <th>Total</th>
+                <th>État</th>
+            </tr>
+        </thead>
+        <tbody id="orders-body">
+            <tr><td>Chargement...</td></tr>
+        </tbody>
+    </table>
+
+    <script src="api.js"></script>
+    <script>
+        window.onload = async () => {
+          
+            const orders = await callOdoo('sale.order', 'search_read', [], 
+                { fields: ['name', 'partner_id', 'amount_total', 'state'], limit: 20, order: 'id desc' });
+
+            const tbody = document.getElementById('orders-body');
+            tbody.innerHTML = orders.map(o => `
+                <tr>
+                    <td>${o.name}</td>
+                    <td>${o.partner_id[1]}</td>
+                    <td>${o.amount_total} €</td>
+                    <td><span class="badge state-${o.state}">${o.state}</span></td>
+                </tr>
+            `).join('');
+        };
+    </script>
+</body>
+</html>
